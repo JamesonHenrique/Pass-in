@@ -18,9 +18,61 @@ public class Event {
     @Column(nullable = false)
     private String title;
     @Column(nullable = false)
-    private String detail;
+    private String details;
     @Column(nullable = false,unique = true)
     private String slug;
     @Column(nullable = false, name = "maximum_attendees")
     private Integer maximumAttendees;
+
+    public String getId() {
+        return id;
+    }
+
+    public void setId(
+            String id) {
+        this.id =
+                id;
+    }
+
+    public String getTitle() {
+        return title;
+    }
+
+    public void setTitle(
+            String title) {
+        this.title =
+                title;
+    }
+
+    public String getDetails() {
+        return details;
+    }
+
+    public void setDetails(
+            String details) {
+        this.details =
+                details;
+    }
+
+    public String getSlug() {
+        return slug;
+    }
+
+    public void setSlug(
+            String slug) {
+        this.slug =
+                slug;
+    }
+
+    public Integer getMaximumAttendees() {
+        return maximumAttendees;
+    }
+
+    public void setMaximumAttendees(
+            Integer maximumAttendees) {
+        this.maximumAttendees =
+                maximumAttendees;
+    }
+
+
 }

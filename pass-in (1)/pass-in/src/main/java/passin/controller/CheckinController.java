@@ -1,4 +1,4 @@
-package passin.domain.controller;
+package passin.controller;
 
 import lombok.AllArgsConstructor;
 import org.springframework.web.bind.annotation.RequestMapping;
