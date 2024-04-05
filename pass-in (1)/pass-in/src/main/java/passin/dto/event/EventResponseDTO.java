@@ -1,9 +1,10 @@
 package passin.dto.event;
 
+import lombok.Data;
 import lombok.Getter;
 import passin.domain.event.Event;
 
-@Getter
+@Data
 public class EventResponseDTO {
 
     EventDetailDTO event;
@@ -17,5 +18,15 @@ public class EventResponseDTO {
                 event.getMaximumAttendees(),
                 numberOfAttendees
         );
+    }
+
+    public EventDetailDTO getEvent() {
+        return event;
+    }
+
+    public void setEvent(
+            EventDetailDTO event) {
+        this.event =
+                event;
     }
 }

@@ -1,13 +1,15 @@
 package passin.service;
 
 import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import passin.domain.attendee.Attendee;
 import passin.domain.event.Event;
+import passin.domain.event.exception.EventNotFoundException;
 import passin.dto.event.EventIdDTO;
 import passin.dto.event.EventRequestDTO;
 import passin.dto.event.EventResponseDTO;
-import passin.repository.AttendeeRepository;
+
 import passin.repository.EventRepository;
 
 import java.text.Normalizer;
@@ -16,19 +18,15 @@ import java.util.List;
 @Service
 @AllArgsConstructor
 public class EventService {
-
     private EventRepository eventRepository;
-    private AttendeeRepository attendeeRepository;
-    public EventResponseDTO getEventDetails(String eventId)  {
-       Event event = eventRepository.findById(eventId).orElseThrow(
-               () -> new RuntimeException("Event not found with  ID:" + eventId)
+    private AttendeeService  attendeeService;
 
-       );
-        List<Attendee> attendeeList = attendeeRepository.findByEventId(eventId);
-        return new EventResponseDTO(event,attendeeList.size());
+    public EventResponseDTO getEventDetail(String eventId){
+        Event event = this.eventRepository.findById(eventId).orElseThrow(() -> new EventNotFoundException("Event not fount with ID:" + eventId));
+        List<Attendee> attendeesList = this.attendeeService.getAllAttendeesFromEvent(eventId);
+        return new EventResponseDTO(event, attendeesList.size());
     }
-    public EventIdDTO createEvent(
-            EventRequestDTO eventDTO){
+    public EventIdDTO createEvent(EventRequestDTO eventDTO){
         Event newEvent = new Event();
         newEvent.setTitle(eventDTO.title());
         newEvent.setDetails(eventDTO.details());
@@ -42,16 +40,14 @@ public class EventService {
     }
 
     private String createSlug(String text){
-        String normalized =
-                Normalizer.normalize(text, Normalizer.Form.NFD);
+        String normalized = Normalizer.normalize(text, Normalizer.Form.NFD);
         return normalized.replaceAll("[\\p{InCOMBINING_DIACRITICAL_MARKS}]", "")
                 .replaceAll("[^\\w\\s]", "")
                 .replaceAll("\\s+", "-")
                 .toLowerCase();
     }
-
-
-
-
-
 }
+
+
+
+
