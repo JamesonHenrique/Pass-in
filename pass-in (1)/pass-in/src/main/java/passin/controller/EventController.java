@@ -1,6 +1,7 @@
 package passin.controller;
 
 import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.util.UriComponentsBuilder;
@@ -8,6 +9,7 @@ import passin.domain.event.Event;
 import passin.dto.attendee.AttendeeIdDTO;
 import passin.dto.attendee.AttendeeListResponseDTO;
 import passin.dto.attendee.AttendeeRequestDTO;
+import passin.dto.attendee.AttendeesListResponseDTO;
 import passin.dto.event.EventIdDTO;
 import passin.dto.event.EventRequestDTO;
 import passin.dto.event.EventResponseDTO;
@@ -15,12 +17,11 @@ import passin.service.AttendeeService;
 import passin.service.EventService;
 
 @RestController
-@AllArgsConstructor
 @RequestMapping("/events")
+@RequiredArgsConstructor
 public class EventController {
     private  EventService eventService;
-    private AttendeeService
-            attendeeService;
+    private AttendeeService attendeeService;
 
     @GetMapping("/{id}")
     public ResponseEntity<EventResponseDTO> getEvent(@PathVariable String id){
@@ -36,18 +37,20 @@ public class EventController {
 
         return ResponseEntity.created(uri).body(eventIdDTO);
     }
+
     @PostMapping("/{eventId}/attendees")
     public ResponseEntity<AttendeeIdDTO> registerParticipant(@PathVariable String eventId, @RequestBody AttendeeRequestDTO body, UriComponentsBuilder uriComponentsBuilder){
-        AttendeeIdDTO
-                attendeeIdDTO = this.eventService.registerAttendeeOnEvent(eventId, body);
+        AttendeeIdDTO  attendeeIdDTO = this.eventService.registerAttendeeOnEvent(eventId, body);
 
         var uri = uriComponentsBuilder.path("/attendees/{attendId}/badge").buildAndExpand(attendeeIdDTO.attendeeId()).toUri();
 
         return ResponseEntity.created(uri).body(attendeeIdDTO);
     }
+
     @GetMapping("/attendees/{id}")
-    public ResponseEntity<AttendeeListResponseDTO> getEventAttendee(@PathVariable String id){
-        AttendeeListResponseDTO attendeesListResponse = this.attendeeService.getEventsAttendee(id);
+    public ResponseEntity<AttendeesListResponseDTO> getEventAttendee(@PathVariable String id){
+        AttendeesListResponseDTO
+                attendeesListResponse = this.attendeeService.getEventsAttendee(id);
         return ResponseEntity.ok(attendeesListResponse);
     }
 

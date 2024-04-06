@@ -7,10 +7,7 @@ import passin.domain.attendee.Attendee;
 import passin.domain.attendee.exception.AttendeeAlreadyExistException;
 import passin.domain.attendee.exception.AttendeeNotFoundException;
 import passin.domain.checkin.Checkin;
-import passin.dto.attendee.AttendeeBadgeDTO;
-import passin.dto.attendee.AttendeeBadgeResponseDTO;
-import passin.dto.attendee.AttendeeDetails;
-import passin.dto.attendee.AttendeeListResponseDTO;
+import passin.dto.attendee.*;
 import passin.repository.AttendeeRepository;
 import passin.repository.CheckinRepository;
 
@@ -21,27 +18,26 @@ import java.util.Optional;
 @Service
 @AllArgsConstructor
 public class AttendeeService {
-    private AttendeeRepository
-            attendeeRepository;
-private CheckinRepository
-        checkinRepository;
+
+    private final AttendeeRepository attendeeRepository;
+    private final CheckInService checkInService;
 
     public List<Attendee> getAllAttendeesFromEvent(String eventId){
-        return attendeeRepository.findByEventId(eventId);
+        return this.attendeeRepository.findByEventId(eventId);
     }
-    public AttendeeListResponseDTO getEventsAttendee(String eventId){
+
+    public AttendeesListResponseDTO getEventsAttendee(String eventId){
         List<Attendee> attendeeList = this.getAllAttendeesFromEvent(eventId);
 
         List<AttendeeDetails> attendeeDetailsList = attendeeList.stream().map(attendee -> {
-            Optional<Checkin>
-                    checkIn = this.checkinRepository.findByAttendeeId(attendee.getId());
-            LocalDateTime
-                    checkedInAt = checkIn.<LocalDateTime>map(Checkin::getCreatedAt).orElse(null);
+            Optional<Checkin> checkIn = this.checkInService.getCheckIn(attendee.getId());
+            LocalDateTime checkedInAt = checkIn.<LocalDateTime>map(Checkin::getCreatedAt).orElse(null);
             return new AttendeeDetails(attendee.getId(), attendee.getName(), attendee.getEmail(), attendee.getCreatedAt(), checkedInAt);
         }).toList();
 
-        return new AttendeeListResponseDTO(attendeeDetailsList);
+        return new AttendeesListResponseDTO(attendeeDetailsList);
     }
+
     public void verifyAttendeeSubscription(String email, String eventId){
         Optional<Attendee> isAttendeeRegistered = this.attendeeRepository.findByEventIdAndEmail(eventId, email);
         if(isAttendeeRegistered.isPresent()) throw new AttendeeAlreadyExistException("Attendee already registered");
@@ -53,7 +49,10 @@ private CheckinRepository
         return newAttendee;
     }
 
-
+    public void checkInAttendee(String attendeeId){
+        Attendee attendee = this.getAttendee(attendeeId);
+        this.checkInService.registerCheckIn(attendee);
+    }
 
     private Attendee getAttendee(String attendeeId){
         return this.attendeeRepository.findById(attendeeId).orElseThrow(() -> new AttendeeNotFoundException("Attendee not found with ID: " + attendeeId));
@@ -65,8 +64,7 @@ private CheckinRepository
 
         var uri = uriComponentsBuilder.path("/attendees/{attendeeId}/check-in").buildAndExpand(attendeeId).toUri().toString();
 
-        AttendeeBadgeDTO
-                attendeeBadgeDTO = new AttendeeBadgeDTO(attendee.getName(), attendee.getEmail(), uri, attendee.getEvent().getId());
+        AttendeeBadgeDTO attendeeBadgeDTO = new AttendeeBadgeDTO(attendee.getName(), attendee.getEmail(), uri, attendee.getEvent().getId());
         return new AttendeeBadgeResponseDTO(attendeeBadgeDTO);
     }
 }
