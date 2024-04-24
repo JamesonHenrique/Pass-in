@@ -35,6 +35,6 @@ Execute o comando mvn clean install para construir o projeto.
 
 Execute o comando mvn spring-boot:run para iniciar a aplicação.
 
-# Contribuiçãoç
+# Contribuição
 
 Contribuições são bem-vindas. Por favor, faça um fork do projeto e crie um pull request com as suas alterações. 
